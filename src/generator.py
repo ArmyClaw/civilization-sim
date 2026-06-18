@@ -85,13 +85,13 @@ class TerrainGenerator:
     def __init__(self, map_obj: Map):
         self.map = map_obj
         self.noise = PerlinNoise(map_obj.seed)
-        self.noise_scale = 0.1  # 噪声缩放因子
+        self.noise_scale = 0.03  # 噪声缩放因子，产生更大范围的地形变化
         
         # 地形生成参数
-        self.water_threshold = 0.3
-        self.mountain_threshold = 0.8
-        self.forest_threshold_moisture = 0.7
-        self.forest_threshold_elevation = 0.6
+        self.water_threshold = 0.4
+        self.mountain_threshold = 0.65
+        self.forest_threshold_moisture = 0.6
+        self.forest_threshold_elevation = 0.55
     
     def generate_elevation(self) -> List[List[float]]:
         """生成海拔高度图"""
@@ -127,7 +127,7 @@ class TerrainGenerator:
         # 首先基于噪声生成基础湿度
         for y in range(self.map.height):
             row = []
-            for x in range(self.map.height):
+            for x in range(self.map.width):  # 修复：使用self.map.width而不是self.map.height
                 # 基础湿度
                 base_moisture = self.noise.noise(x * self.noise_scale * 1.5, y * self.noise_scale * 1.5) * 0.5 + 0.5
                 
@@ -200,27 +200,35 @@ class TerrainGenerator:
                 moisture = moisture_map[y][x]
                 
                 if elevation < self.water_threshold:
-                    # 低海拔区域
-                    if moisture > 0.6:
-                        terrain_type = TerrainType.WATER
-                    else:
-                        terrain_type = TerrainType.LOWLAND
+                    # 低海拔区域 - 水域
+                    terrain_type = TerrainType.WATER
                 
-                elif elevation < self.forest_threshold_elevation:
-                    # 中等海拔区域
-                    if moisture > self.forest_threshold_moisture:
+                elif elevation < 0.4:  # 低海拔区域
+                    # 低海拔根据湿度决定地形类型
+                    if moisture > 0.7:
                         terrain_type = TerrainType.FOREST
-                    else:
+                    elif moisture > 0.4:
                         terrain_type = TerrainType.LOWLAND
-                
-                else:
-                    # 高海拔区域
-                    if moisture > self.forest_threshold_moisture * 0.7:
-                        terrain_type = TerrainType.FOREST
-                    elif elevation > self.mountain_threshold:
-                        terrain_type = TerrainType.MOUNTAIN
                     else:
                         terrain_type = TerrainType.DESERT
+                
+                elif elevation < 0.6:  # 中等海拔区域
+                    # 中海拔根据湿度决定
+                    if moisture > 0.6:
+                        terrain_type = TerrainType.FOREST
+                    else:
+                        terrain_type = TerrainType.LOWLAND
+                
+                elif elevation < self.mountain_threshold:  # 高海拔区域
+                    # 高海拔但不够成为山地，可能是沙漠或森林
+                    if moisture > 0.3:
+                        terrain_type = TerrainType.FOREST
+                    else:
+                        terrain_type = TerrainType.DESERT
+                
+                else:
+                    # 最高海拔 - 山地
+                    terrain_type = TerrainType.MOUNTAIN
                 
                 row.append(terrain_type)
             
