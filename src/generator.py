@@ -6,7 +6,7 @@
 import random
 import math
 from typing import List, Dict, Tuple
-from .terrain import TerrainType, Map, Tile
+from terrain import TerrainType, Map, Tile
 
 
 class PerlinNoise:

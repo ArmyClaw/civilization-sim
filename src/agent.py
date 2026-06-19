@@ -6,7 +6,7 @@
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
 import random
-from .terrain import Tile, TerrainType
+from terrain import Tile, TerrainType
 
 
 class ResourceType(Enum):
@@ -15,6 +15,14 @@ class ResourceType(Enum):
     WATER = "water"        # 水
     WOOD = "wood"          # 木材
     MINERAL = "mineral"    # 矿物
+
+
+class Profession(Enum):
+    """职业枚举 - Agent专业化系统"""
+    HUNTER = "hunter"          # 猎人 - 擅长狩猎动物，获得更多食物
+    FARMER = "farmer"          # 农民 - 擅长种植，稳定食物产出
+    CRAFTSMAN = "craftsman"    # 工匠 - 擅长制作工具和武器
+    GATHERER = "gatherer"      # 采集者 - 擅长收集各种资源
 
 
 class AgentState(Enum):
@@ -29,22 +37,25 @@ class AgentState(Enum):
 class Agent:
     """基础人口Agent类"""
     
-    def __init__(self, agent_id: int, x: int, y: int, tile: Tile):
+    def __init__(self, agent_id: int, x: int, y: int, tile: Tile, profession: Profession = Profession.GATHERER):
         self.id = agent_id                    # Agent唯一标识
         self.x = x                            # X坐标
         self.y = y                            # Y坐标
         self.current_tile = tile              # 当前所在格子
         
-        # 基础属性
+        # 职业设置
+        self.profession = profession          # Agent的职业
+        self.profession_level = 1             # 职业等级 (1-10)
+        self.profession_exp = 0.0            # 职业经验值
+        
+        # 基础属性（根据职业调整）
         self.health = 100.0                   # 健康值 (0-100)
         self.energy = 100.0                   # 能量值 (0-100)
         self.hunger = 0.0                     # 饥饿度 (0-100，越高越饿)
         self.thirst = 0.0                     # 口渴度 (0-100，越高越渴)
         
-        # 能力值
-        self.strength = random.randint(3, 7)  # 力量 (3-7)
-        self.agility = random.randint(3, 7)    # 敏捷 (3-7)
-        self.endurance = random.randint(3, 7)  # 耐力 (3-7)
+        # 能力值（根据职业调整）
+        self._setup_profession_stats()
         
         # 背包
         self.inventory: Dict[ResourceType, int] = {
@@ -64,12 +75,87 @@ class Agent:
         self.resources_collected = 0         # 采集资源总数
         self.steps_taken = 0                # 移动步数
         self.rest_count = 0                  # 休息次数
+        self.profession_specializations: Dict[str, int] = {
+            'hunt_success': 0,    # 狩猎成功次数
+            'farm_harvest': 0,   # 农作物收获次数
+            'craft_items': 0,     # 制作物品次数
+            'gather_rare': 0      # 稀有资源采集次数
+        }
         
-        # 生存参数
+        # 生存参数（根据职业调整）
         self.hunger_rate = 2.0               # 饥饿增长速率
         self.thirst_rate = 1.5               # 口渴增长速率
         self.energy_consumption = 1.0         # 能量消耗速率
         
+        # 职业特殊能力
+        self.special_abilities = self._setup_profession_abilities()
+        self.crafted_items: List[str] = []    # 工匠制作的物品列表
+        
+    def _setup_profession_stats(self):
+        """根据职业设置属性"""
+        base_stats = {
+            Profession.HUNTER: {
+                'strength': random.randint(6, 9),    # 猎人力量较高
+                'agility': random.randint(7, 9),     # 猎人敏捷很高
+                'endurance': random.randint(4, 6),   # 猎人耐力中等
+                'hunger_rate': 2.5,                 # 猎人消耗更多体力
+                'energy_consumption': 1.2            # 猎人能量消耗较高
+            },
+            Profession.FARMER: {
+                'strength': random.randint(3, 5),    # 农民力量较低
+                'agility': random.randint(3, 5),     # 农民敏捷较低
+                'endurance': random.randint(6, 8),   # 农民耐力较好
+                'hunger_rate': 1.8,                 # 农民饥饿增长较慢
+                'energy_consumption': 0.9            # 农民能量消耗较低
+            },
+            Profession.CRAFTSMAN: {
+                'strength': random.randint(4, 6),    # 工匠力量中等
+                'agility': random.randint(4, 6),     # 工匠敏捷中等
+                'endurance': random.randint(5, 7),   # 工匠耐力中等
+                'hunger_rate': 2.0,                 # 农民饥饿增长中等
+                'energy_consumption': 1.0            # 农民能量消耗中等
+            },
+            Profession.GATHERER: {
+                'strength': random.randint(5, 7),    # 采集者力量中等偏上
+                'agility': random.randint(5, 7),     # 采集者敏捷中等偏上
+                'endurance': random.randint(5, 7),   # 采集者耐力中等
+                'hunger_rate': 2.2,                 # 采集者饥饿增长中等
+                'energy_consumption': 1.1            # 采集者能量消耗中等偏上
+            }
+        }
+        
+        stats = base_stats.get(self.profession, base_stats[Profession.GATHERER])
+        self.strength = stats['strength']
+        self.agility = stats['agility']
+        self.endurance = stats['endurance']
+        self.hunger_rate = stats['hunger_rate']
+        self.energy_consumption = stats['energy_consumption']
+    
+    def _setup_profession_abilities(self) -> Dict[str, float]:
+        """设置职业特殊能力"""
+        return {
+            Profession.HUNTER: {
+                'hunting_efficiency': 1.5,    # 狩猎效率50%提升
+                'movement_speed': 1.2,        # 移动速度20%提升
+                'resource_bonus': {'FOOD': 1.3}  # 食物产出30%提升
+            },
+            Profession.FARMER: {
+                'farming_efficiency': 1.4,    # 种植效率40%提升
+                'food_production': 1.2,        # 食物生产20%提升
+                'resource_bonus': {'FOOD': 1.2, 'WOOD': 0.8}  # 食物+20%，木材-20%
+            },
+            Profession.CRAFTSMAN: {
+                'crafting_efficiency': 1.6,   # 制作效率60%提升
+                'tool_quality': 1.3,          # 工具质量30%提升
+                'resource_bonus': {'WOOD': 1.2, 'MINERAL': 1.1}  # 木材+20%，矿物+10%
+            },
+            Profession.GATHERER: {
+                'gathering_range': 1.5,       # 采集范围50%提升
+                'rare_chance': 1.3,          # 稀有资源几率30%提升
+                'resource_bonus': {'WOOD': 1.1, 'MINERAL': 1.1, 'FOOD': 1.0}  # 各类资源均衡提升
+            }
+        }[self.profession]
+    
     def update(self, world_map) -> List[str]:
         """更新Agent状态，返回行为日志"""
         logs = []
@@ -199,16 +285,51 @@ class Agent:
         return logs
     
     def _act_gathering(self, world_map) -> List[str]:
-        """采集资源行为"""
+        """采集资源行为 - 根据职业专业化"""
         logs = []
         
         if not self.target_resource:
             self.target_resource = self._find_needed_resource()
         
         if self.target_resource:
-            # 计算采集效率
-            efficiency = self.strength / 10.0
-            gather_amount = int(efficiency * random.randint(2, 5))
+            # 根据职业计算采集效率和产出
+            base_efficiency = self.strength / 10.0
+            profession_bonus = self.special_abilities.get('resource_bonus', {})
+            resource_bonus = profession_bonus.get(self.target_resource.value, 1.0)
+            
+            efficiency = base_efficiency * resource_bonus
+            
+            # 职业特定的采集行为
+            if self.profession == Profession.HUNTER:
+                gather_amount = int(efficiency * random.randint(3, 6))
+                self.profession_exp += gather_amount * 0.5
+                logs.append(f"Hunter {self.id} hunting efficiency!")
+            elif self.profession == Profession.FARMER:
+                gather_amount = int(efficiency * random.randint(2, 4))
+                self.profession_exp += gather_amount * 0.3
+                # 农民有稳定产出
+                if random.random() < 0.3:  # 30%概率额外产出
+                    gather_amount += 1
+                    logs.append(f"Farmer {self.id} got bonus harvest!")
+            elif self.profession == Profession.CRAFTSMAN:
+                # 工匠主要收集制作工具的材料
+                if self.target_resource == ResourceType.WOOD or self.target_resource == ResourceType.MINERAL:
+                    gather_amount = int(efficiency * random.randint(2, 5))
+                    self.profession_exp += gather_amount * 0.4
+                    # 工匠会制作工具
+                    if random.random() < 0.2:  # 20%概率制作工具
+                        self._craft_tool()
+                        logs.append(f"Craftsman {self.id} crafted a tool!")
+                else:
+                    gather_amount = int(efficiency * random.randint(1, 3))
+            else:  # GATHERER
+                gather_amount = int(efficiency * random.randint(2, 5))
+                self.profession_exp += gather_amount * 0.3
+                # 采集者有几率找到稀有资源
+                if random.random() < 0.1:  # 10%几率
+                    gather_amount += 1
+                    self.profession_specializations['gather_rare'] += 1
+                    logs.append(f"Gatherer {self.id} found rare resource!")
             
             # 检查背包容量
             current_total = sum(self.inventory.values())
@@ -327,10 +448,56 @@ class Agent:
             "x": self.x,
             "y": self.y,
             "state": self.state.value,
+            "profession": self.profession.value,
+            "profession_level": self.profession_level,
+            "profession_exp": self.profession_exp,
             "inventory": {res_type.value: amount for res_type, amount in self.inventory.items()},
             "resources_collected": self.resources_collected,
-            "steps_taken": self.steps_taken
+            "steps_taken": self.steps_taken,
+            "specializations": self.profession_specializations
         }
+    
+    def _craft_tool(self) -> bool:
+        """工匠制作工具"""
+        if self.profession != Profession.CRAFTSMAN:
+            return False
+        
+        # 检查材料
+        if self.inventory.get(ResourceType.WOOD, 0) >= 2 and self.inventory.get(ResourceType.MINERAL, 0) >= 1:
+            # 消耗材料
+            self.inventory[ResourceType.WOOD] -= 2
+            self.inventory[ResourceType.MINERAL] -= 1
+            
+            # 制作工具
+            tool_quality = self.special_abilities.get('tool_quality', 1.0)
+            tool_name = f"tool_quality_{int(tool_quality * 10)}"
+            self.crafted_items.append(tool_name)
+            self.profession_specializations['craft_items'] += 1
+            self.profession_exp += 5.0  # 工匠制作获得经验
+            
+            # 工具效果（简化：增加采集效率）
+            self.strength += 1
+            
+            return True
+        return False
+    
+    def _profession_level_up(self) -> bool:
+        """职业等级提升"""
+        exp_required = self.profession_level * 20  # 等级越高需要越多经验
+        if self.profession_exp >= exp_required:
+            self.profession_level += 1
+            self.profession_exp = 0
+            
+            # 提升各项属性
+            self.strength += 1
+            self.agility += 1
+            self.endurance += 1
+            
+            # 增加背包容量
+            self.max_inventory += 2
+            
+            return True
+        return False
     
     def __str__(self) -> str:
         return f"Agent({self.id}, {self.x},{self.y}, {self.state.value})"
