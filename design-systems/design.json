@@ -1,0 +1,71 @@
+{
+  "name": "luxury-gilded",
+  "date": "2026-06-20",
+  "author": "阿呆",
+  "origin": "18世纪欧洲·洛可可与巴洛克艺术的现代奢华演绎",
+  "description": "奢华鎏金风格以黄金、象牙白和深蓝为主调，融合古典宫廷的华贵与现代数字艺术的精致，创造出令人过目难忘的视觉盛宴。",
+  "philosophy": "奢华不是炫耀，而是对细节的极致追求。就像今天的新闻——AI的价值达到9650亿美元，基因编辑技术突破伦理边界，SpaceX警告水资源短缺，这些都在诉说着人类文明的进步与挑战。黄金代表价值，象牙白代表纯净，深蓝代表深邃，三者交织成我们这个时代的华美篇章。",
+  "features": [
+    "鎏金边框与装饰线条",
+    "大理石纹理背景",
+    "丝绸质感文字渲染",
+    "水晶般透明的玻璃效果",
+    "微妙的黄金光泽动画"
+  ],
+  "colorPalette": {
+    "background": "#FAF7F2",
+    "primary": "#D4AF37",
+    "secondary": "#F5F5DC", 
+    "accent": "#1E3A8A",
+    "gold-light": "#FFD700",
+    "gold-dark": "#B8860B",
+    "ivory": "#FFFFF0",
+    "navy": "#000080",
+    "cream": "#FFF8DC",
+    "dimText": "rgba(30, 58, 138, 0.85)",
+    "gold-gradient": "linear-gradient(135deg, #D4AF37 0%, #FFD700 25%, #F5F5DC 50%, #D4AF37 75%, #B8860B 100%)",
+    "marble-texture": "linear-gradient(45deg, #FAF7F2 0%, #F5F5DC 25%, #FAF7F2 50%, #FFF8DC 75%, #FAF7F2 100%)"
+  },
+  "fonts": {
+    "display": "Playfair Display",
+    "body": "Lora"
+  },
+  "typography": {
+    "heading-size": "clamp(2.2rem, 6vw, 4.5rem)",
+    "text-size": "clamp(1rem, 2.2vw, 1.15rem)",
+    "line-height": "1.7",
+    "tracking": "0.015em",
+    "weight-heading": "600",
+    "weight-body": "400"
+  },
+  "shadows": {
+    "gold-shadow": "box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3)",
+    "deep-shadow": "box-shadow: 0 8px 40px rgba(0, 0, 128, 0.2)",
+    "soft-shadow": "box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1)",
+    "crystal-shadow": "box-shadow: 0 0 30px rgba(255, 215, 0, 0.2)"
+  },
+  "borders": {
+    "gold-border": "border: 2px solid #D4AF37",
+    "double-gold": "border: 1px solid #D4AF37; border-bottom: 3px solid #FFD700",
+    "ornate-frame": "border: 3px solid transparent; border-image: linear-gradient(45deg, #D4AF37, #FFD700, #D4AF37) 1",
+    "crystal-border": "border: 1px solid rgba(255, 215, 0, 0.3); backdrop-filter: blur(10px)"
+  },
+  "textures": {
+    "marble-background": "background: linear-gradient(135deg, #FAF7F2 0%, #F5F5DC 25%, #FAF7F2 50%, #FFF8DC 75%, #FAF7F2 100%)",
+    "gold-foil": "background: linear-gradient(45deg, #D4AF37 0%, #FFD700 25%, #D4AF37 50%, #B8860B 75%, #D4AF37 100%)",
+    "silk-texture": "background: repeating-linear-gradient(90deg, #FAF7F2 0px, #FAF7F2 2px, #FFF8DC 2px, #FFF8DC 4px)",
+    "crystal-effect": "background: radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(30, 58, 138, 0.05) 0%, transparent 50%)"
+  },
+  "animations": {
+    "gold-shimmer": "animation: goldShimmer 3s ease-in-out infinite",
+    "crystal-glow": "animation: crystalGlow 4s ease-in-out infinite alternate",
+    "float-gentle": "animation: floatGentle 6s ease-in-out infinite",
+    "marble-flow": "animation: marbleFlow 20s linear infinite"
+  },
+  "effects": {
+    "gold-gloss": "background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 215, 0, 0.05) 50%, rgba(212, 175, 55, 0.1) 100%)",
+    "crystal-clear": "backdrop-filter: blur(8px); background: rgba(250, 247, 242, 0.8)",
+    "luxury-glow": "filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3))",
+    "text-shimmer": "background: linear-gradient(45deg, #1E3A8A, #D4AF37, #1E3A8A); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent"
+  }
+}
