@@ -85,16 +85,18 @@ class TerrainGenerator:
     def __init__(self, map_obj: Map):
         self.map = map_obj
         self.noise = PerlinNoise(map_obj.seed)
-        self.noise_scale = 0.03  # 噪声缩放因子，产生更大范围的地形变化
+        self.noise_scale = 0.01  # 噪声缩放因子，产生更大范围的地形变化
+        self.detail_scale = 0.08  # 细节噪声缩放
         
-        # 地形生成参数
-        self.water_threshold = 0.4
-        self.mountain_threshold = 0.65
-        self.forest_threshold_moisture = 0.6
-        self.forest_threshold_elevation = 0.55
+        # 地形生成参数 - 调整以获得更多样化的地形
+        self.water_threshold = 0.1   # 水域阈值
+        self.mountain_threshold = 0.8  # 山地阈值
+        self.forest_threshold_moisture = 0.4  # 森林湿度要求
+        self.forest_threshold_elevation = 0.5
+        self.desert_threshold_moisture = 0.2  # 沙漠湿度要求
     
     def generate_elevation(self) -> List[List[float]]:
-        """生成海拔高度图"""
+        """生成海拔高度图 - 改进版本"""
         elevation_map = []
         
         for y in range(self.map.height):
@@ -103,14 +105,14 @@ class TerrainGenerator:
                 # 使用多层噪声生成更自然的地形
                 elevation = 0.0
                 
-                # 主要地形特征
-                elevation += self.noise.noise(x * self.noise_scale, y * self.noise_scale) * 0.5
+                # 大尺度地形特征（决定主要地形区域）
+                elevation += self.noise.noise(x * self.noise_scale, y * self.noise_scale) * 1.0
                 
-                # 添加细节
-                elevation += self.noise.noise(x * self.noise_scale * 2, y * self.noise_scale * 2) * 0.25
+                # 中尺度地形变化（增加地形多样性）
+                elevation += self.noise.noise(x * self.noise_scale * 1.2, y * self.noise_scale * 1.2) * 0.6
                 
-                # 更大尺度的地形特征
-                elevation += self.noise.noise(x * self.noise_scale * 0.5, y * self.noise_scale * 0.5) * 0.25
+                # 细节噪声（增加表面细节）
+                elevation += self.noise.noise(x * self.detail_scale, y * self.detail_scale) * 0.4
                 
                 # 归一化到 0.0-1.0
                 elevation = (elevation + 1.0) / 2.0
@@ -121,25 +123,24 @@ class TerrainGenerator:
         return elevation_map
     
     def generate_moisture(self, elevation_map: List[List[float]]) -> List[List[float]]:
-        """生成湿度分布"""
+        """生成湿度分布 - 改进版本"""
         moisture_map = []
         
         # 首先基于噪声生成基础湿度
         for y in range(self.map.height):
             row = []
-            for x in range(self.map.width):  # 修复：使用self.map.width而不是self.map.height
-                # 基础湿度
-                base_moisture = self.noise.noise(x * self.noise_scale * 1.5, y * self.noise_scale * 1.5) * 0.5 + 0.5
-                
-                # 水域附近的湿度增加
-                distance_to_water = self._get_distance_to_water(x, y, elevation_map)
-                moisture_bonus = max(0, 1.0 - distance_to_water) * 0.5
+            for x in range(self.map.width):
+                # 基础湿度（使用不同的噪声模式）
+                base_moisture = self.noise.noise(x * self.noise_scale * 3.0, y * self.noise_scale * 3.0) * 0.6 + 0.4
                 
                 # 海拔越低湿度越高
-                elevation_factor = (1.0 - elevation_map[y][x]) * 0.3
+                elevation_factor = (1.0 - elevation_map[y][x]) * 0.5
+                
+                # 添加一些随机性
+                random_factor = self.noise.noise(x * 0.1, y * 0.1) * 0.1
                 
                 # 综合湿度
-                moisture = base_moisture + moisture_bonus + elevation_factor
+                moisture = base_moisture + elevation_factor + random_factor
                 moisture = max(0.0, min(1.0, moisture))
                 row.append(moisture)
             
@@ -203,27 +204,29 @@ class TerrainGenerator:
                     # 低海拔区域 - 水域
                     terrain_type = TerrainType.WATER
                 
-                elif elevation < 0.4:  # 低海拔区域
+                elif elevation < 0.35:  # 低海拔区域
                     # 低海拔根据湿度决定地形类型
-                    if moisture > 0.7:
+                    if moisture > 0.7:  # 湿润地区 - 森林
                         terrain_type = TerrainType.FOREST
-                    elif moisture > 0.4:
+                    elif moisture > 0.4:  # 中等湿度 - 低地（适合农业）
                         terrain_type = TerrainType.LOWLAND
-                    else:
+                    else:  # 干燥地区 - 沙漠
                         terrain_type = TerrainType.DESERT
                 
                 elif elevation < 0.6:  # 中等海拔区域
                     # 中海拔根据湿度决定
-                    if moisture > 0.6:
+                    if moisture > 0.6:  # 湿润地区 - 森林
                         terrain_type = TerrainType.FOREST
-                    else:
+                    elif moisture > 0.3:  # 中等湿度 - 低地
                         terrain_type = TerrainType.LOWLAND
+                    else:  # 干燥地区 - 沙漠
+                        terrain_type = TerrainType.DESERT
                 
                 elif elevation < self.mountain_threshold:  # 高海拔区域
-                    # 高海拔但不够成为山地，可能是沙漠或森林
-                    if moisture > 0.3:
+                    # 高海拔但不够成为山地，可能是森林或沙漠
+                    if moisture > 0.5:  # 较湿润地区 - 森林
                         terrain_type = TerrainType.FOREST
-                    else:
+                    else:  # 干燥地区 - 沙漠
                         terrain_type = TerrainType.DESERT
                 
                 else:
@@ -284,36 +287,52 @@ class ResourceGenerator:
         self.map = map_obj
     
     def distribute_resources(self):
-        """在地图上分布基础资源"""
+        """在地图上分布基础资源 - 增强版本"""
         for y in range(self.map.height):
             for x in range(self.map.width):
                 tile = self.map.grid[y][x]
                 terrain_type = tile.terrain_type
+                elevation = tile.elevation
+                moisture = tile.moisture
                 
-                # 根据地形类型分配资源
-                if terrain_type == TerrainType.FOREST:
-                    tile.resources["wood"] = random.uniform(0.5, 1.0)
-                    tile.resources["food"] = random.uniform(0.3, 0.7)
-                    tile.resources["water"] = random.uniform(0.4, 0.8)
-                
+                # 根据地形类型和环境参数分配资源
+                if terrain_type == TerrainType.WATER:
+                    # 水域资源：鱼类和水源
+                    tile.resources["water"] = 1.0  # 水源丰富
+                    tile.resources["fish"] = random.uniform(0.4, 1.0)
+                    tile.resources["clay"] = random.uniform(0.1, 0.4)
+                    
                 elif terrain_type == TerrainType.LOWLAND:
-                    tile.resources["food"] = random.uniform(0.6, 1.0)
-                    tile.resources["water"] = random.uniform(0.5, 0.9)
-                    tile.resources["clay"] = random.uniform(0.2, 0.5)
-                
+                    # 低地：适合农业，丰富食物和水源
+                    tile.resources["food"] = random.uniform(0.6, 1.0) * (1.0 + moisture * 0.3)
+                    tile.resources["water"] = random.uniform(0.5, 0.9) * (1.0 + moisture * 0.2)
+                    tile.resources["clay"] = random.uniform(0.2, 0.6)
+                    tile.resources["crops"] = random.uniform(0.3, 0.8)
+                    
+                elif terrain_type == TerrainType.FOREST:
+                    # 森林：木材、食物、水源
+                    tile.resources["wood"] = random.uniform(0.6, 1.0) * (1.0 + (1.0 - elevation) * 0.3)
+                    tile.resources["food"] = random.uniform(0.4, 0.8) * (1.0 + moisture * 0.2)
+                    tile.resources["water"] = random.uniform(0.4, 0.8) * (1.0 + moisture * 0.3)
+                    tile.resources["berries"] = random.uniform(0.3, 0.7)
+                    tile.resources["game"] = random.uniform(0.3, 0.6)
+                    
                 elif terrain_type == TerrainType.MOUNTAIN:
-                    tile.resources["mineral"] = random.uniform(0.6, 1.0)
-                    tile.resources["stone"] = random.uniform(0.4, 0.8)
-                    tile.resources["iron"] = random.uniform(0.3, 0.7)
-                
+                    # 山地：矿物资源
+                    tile.resources["mineral"] = random.uniform(0.5, 1.0) * (elevation * 1.5)
+                    tile.resources["stone"] = random.uniform(0.4, 0.9) * (elevation * 1.2)
+                    tile.resources["iron"] = random.uniform(0.2, 0.7) if elevation > 0.7 else random.uniform(0.1, 0.4)
+                    tile.resources["coal"] = random.uniform(0.2, 0.6)
+                    tile.resources["gold"] = random.uniform(0.05, 0.3) if elevation > 0.8 else 0
+                    tile.resources["silver"] = random.uniform(0.1, 0.4) if elevation > 0.75 else random.uniform(0.05, 0.2)
+                    
                 elif terrain_type == TerrainType.DESERT:
-                    tile.resources["mineral"] = random.uniform(0.3, 0.7)
-                    tile.resources["water"] = random.uniform(0.1, 0.3)
-                    tile.resources["salt"] = random.uniform(0.4, 0.8)
-                
-                elif terrain_type == TerrainType.WATER:
-                    tile.resources["fish"] = random.uniform(0.3, 0.8)
-                    tile.resources["water"] = random.uniform(0.8, 1.0)
+                    # 沙漠：稀缺资源，但可能有矿物和盐
+                    tile.resources["mineral"] = random.uniform(0.2, 0.6) * (1.0 - moisture * 0.5)
+                    tile.resources["water"] = random.uniform(0.05, 0.3) * (1.0 - moisture * 0.3)
+                    tile.resources["salt"] = random.uniform(0.5, 1.0) * (1.0 - moisture * 0.2)
+                    tile.resources["copper"] = random.uniform(0.1, 0.4)
+                    tile.resources["gem"] = random.uniform(0.05, 0.2)  # 沙漠可能有宝石
     
     def generate_resource_clusters(self, resource_type: str, cluster_count: int = 5):
         """生成资源集群"""
