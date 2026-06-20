@@ -7,6 +7,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Tuple
 import random
 from terrain import Tile, TerrainType
+from faith_system import Faith, FaithType, CulturalTrait
 
 
 class ResourceType(Enum):
@@ -99,6 +100,9 @@ class Agent:
         # 财富（简化用健康值代表）
         self.wealth = 100.0
         
+        # 信仰系统
+        self.faith: Optional[Faith] = None
+        
     def _setup_profession_stats(self):
         """根据职业设置属性"""
         base_stats = {
@@ -166,12 +170,24 @@ class Agent:
         return abilities.get(self.profession, {})
     
     def update(self, world_map) -> List[str]:
-        """更新Agent状态"""
+        """更新Agent状态 - 包含信仰影响"""
         logs = []
         
         # 基础生命消耗
         self.hunger += self.hunger_rate
         self.thirst += self.thirst_rate
+        
+        # 信仰影响基础消耗
+        if self.faith:
+            if self.faith.faith_type == FaithType.SPIRITUAL:
+                # 精神信仰降低基础消耗
+                self.hunger += self.hunger_rate * 0.8
+                self.thirst += self.thirst_rate * 0.8
+            elif self.faith.faith_type == FaithType.NATURE:
+                # 自然信仰在特定环境中降低消耗
+                if self.current_tile.terrain_type.value == "FOREST":
+                    self.hunger += self.hunger_rate * 0.9
+                    self.thirst += self.thirst_rate * 0.9
         
         # 根据状态执行行为
         if self.state == AgentState.IDLE:
@@ -196,7 +212,21 @@ class Agent:
         
         # 健康衰减
         if self.hunger > 80 or self.thirst > 80:
-            self.health = max(0, self.health - 2)
+            damage = 2
+            if self.faith and self.faith.faith_type == FaithType.SPIRITUAL:
+                damage = 1  # 精神信仰减少伤害
+            self.health = max(0, self.health - damage)
+        
+        # 信仰强度自然波动
+        if self.faith:
+            if random.random() < 0.1:  # 10%概率信仰强度变化
+                change = random.uniform(-2, 3)  # 轻微波动
+                self.faith.strength = max(0, min(100, self.faith.strength + change))
+                
+                # 信仰强度过低可能导致信仰丧失
+                if self.faith.strength < 10:
+                    logs.append(f"Agent {self.id}'s faith weakens and is lost.")
+                    self.faith = None
         
         return logs
     
@@ -230,8 +260,15 @@ class Agent:
         return logs
     
     def _act_moving(self, world_map) -> List[str]:
-        """移动状态行为"""
+        """移动状态行为 - 受信仰影响移动模式"""
         logs = []
+        
+        # 信仰影响移动偏好
+        if self.faith and random.random() < 0.2:  # 20%概率按信仰模式移动
+            faith_target = self._get_faith_based_movement_target(world_map)
+            if faith_target:
+                self.target_tile = faith_target
+                logs.append(f"Agent {self.id} moves based on faith guidance.")
         
         if self.target_tile:
             # 计算移动方向
@@ -242,6 +279,14 @@ class Agent:
                 # 到达目标
                 self.state = AgentState.IDLE
                 self.target_tile = None
+                
+                # 信仰相关的到达行为
+                if self.faith:
+                    if self.faith.faith_type == FaithType.NATURE:
+                        self.health = min(100, self.health + 2)  # 自然信仰恢复健康
+                    elif self.faith.faith_type == FaithType.SPIRITUAL:
+                        self.energy = min(100, self.energy + 3)  # 精神信仰恢复能量
+                
                 logs.append(f"Agent {self.id} arrived at destination.")
             else:
                 # 移动一步
@@ -260,7 +305,17 @@ class Agent:
                     self.steps_taken += 1
                     
                     # 移动消耗能量
-                    self.energy = max(0, self.energy - new_tile.get_movement_cost())
+                    movement_cost = new_tile.get_movement_cost()
+                    
+                    # 信仰影响移动消耗
+                    if self.faith:
+                        if self.faith.faith_type == FaithType.COMMUNITY:
+                            movement_cost *= 0.8  # 社群信仰减少移动消耗
+                        elif self.faith.faith_type == FaithType.NATURE:
+                            if new_tile.terrain_type.value == "FOREST":
+                                movement_cost *= 0.7  # 自然信仰在森林中移动更有效率
+                    
+                    self.energy = max(0, self.energy - movement_cost)
                     
                     logs.append(f"Agent {self.id} moved to ({new_x}, {new_y}).")
                     
@@ -284,13 +339,47 @@ class Agent:
             logs.append(f"Agent {self.id} has no target, returning to idle state.")
         
         return logs
+        
+    def _get_faith_based_movement_target(self, world_map) -> Optional[Tile]:
+        """根据信仰获取移动目标"""
+        if not self.faith:
+            return None
+            
+        neighbors = world_map.get_neighbors(self.x, self.y)
+        if not neighbors:
+            return None
+            
+        # 根据信仰类型选择移动偏好
+        if self.faith.faith_type == FaithType.NATURE:
+            # 自然偏好：选择森林或山地
+            nature_tiles = [tile for tile in neighbors if tile.terrain_type.value in ["FOREST", "MOUNTAIN"]]
+            return random.choice(nature_tiles) if nature_tiles else random.choice(neighbors)
+            
+        elif self.faith.faith_type == FaithType.COMMUNITY:
+            # 社群偏好：选择平坦地形（更容易聚集）
+            flat_tiles = [tile for tile in neighbors if tile.terrain_type.value == "LOWLAND"]
+            return random.choice(flat_tiles) if flat_tiles else random.choice(neighbors)
+            
+        elif self.faith.faith_type == FaithType.TECHNOLOGY:
+            # 技术偏好：选择有矿物资源的区域
+            mineral_tiles = [tile for tile in neighbors if tile.resources.get("mineral", 0) > 0]
+            return random.choice(mineral_tiles) if mineral_tiles else random.choice(neighbors)
+            
+        return random.choice(neighbors)
     
     def _act_gathering(self, world_map) -> List[str]:
-        """采集资源行为 - 根据职业专业化"""
+        """采集资源行为 - 根据职业专业化和信仰影响"""
         logs = []
         
         if not self.target_resource:
             self.target_resource = self._find_needed_resource()
+            
+            # 信仰影响资源选择
+            if self.faith:
+                resource_preference = self._get_faith_based_resource_preference()
+                if resource_preference and random.random() < 0.3:  # 30%概率遵循信仰偏好
+                    self.target_resource = resource_preference
+                    logs.append(f"Agent {self.id} follows faith to gather {resource_preference.value}.")
         
         if self.target_resource:
             # 根据职业计算采集效率和产出
@@ -298,8 +387,21 @@ class Agent:
             profession_bonus = self.special_abilities.get('resource_bonus', {})
             resource_bonus = profession_bonus.get(self.target_resource.value, 1.0)
             
+            # 信仰影响采集效率
+            faith_bonus = 1.0
+            if self.faith:
+                # 自然崇拜增强资源采集
+                if self.faith.faith_type == FaithType.NATURE and self.target_resource == ResourceType.FOOD:
+                    faith_bonus = 1.3
+                # 技术崇拜增强矿物采集
+                elif self.faith.faith_type == FaithType.TECHNOLOGY and self.target_resource == ResourceType.MINERAL:
+                    faith_bonus = 1.4
+                # 社群崇拜倾向均衡采集
+                elif self.faith.faith_type == FaithType.COMMUNITY:
+                    faith_bonus = 1.2
+                    
             # 计算采集量
-            gather_amount = int(base_efficiency * resource_bonus * random.uniform(1.0, 2.0))
+            gather_amount = int(base_efficiency * resource_bonus * faith_bonus * random.uniform(1.0, 2.0))
             
             # 检查背包容量
             current_total = sum(self.inventory.values())
@@ -310,6 +412,14 @@ class Agent:
                 
                 # 获得职业经验
                 self.profession_exp += gather_amount * 0.5
+                
+                # 信仰影响经验获得
+                if self.faith:
+                    if self.faith.faith_type == FaithType.ANCESTOR:
+                        self.profession_exp += gather_amount * 0.2  # 祖先崇拜额外经验
+                    elif self.faith.faith_type == FaithType.SPIRITUAL:
+                        self.health = min(100, self.health + 1)  # 精神信仰恢复健康
+                
                 logs.append(f"Agent {self.id} gathered {gather_amount} {self.target_resource.value}.")
                 
                 # 检查职业升级
@@ -328,19 +438,80 @@ class Agent:
             self.state = AgentState.IDLE
         
         return logs
+        
+    def _get_faith_based_resource_preference(self) -> Optional[ResourceType]:
+        """根据信仰获取资源偏好"""
+        if not self.faith:
+            return None
+            
+        preferences = {
+            FaithType.NATURE: ResourceType.FOOD,  # 自然崇拜偏好食物
+            FaithType.TECHNOLOGY: ResourceType.MINERAL,  # 技术崇拜偏好矿物
+            FaithType.COMMUNITY: ResourceType.WATER,  # 社群崇拜偏好水资源
+            FaithType.ANCESTOR: ResourceType.WOOD,  # 祖先崇拜偏好木材（制作祭祀用品）
+            FaithType.SPIRITUAL: ResourceType.FOOD,  # 精神崇拜偏好食物（祭祀）
+            FaithType.TRADITION: ResourceType.WOOD  # 传统崇拜偏好木材（传统工艺）
+        }
+        
+        return preferences.get(self.faith.faith_type)
     
     def _act_resting(self, world_map) -> List[str]:
-        """休息状态行为"""
+        """休息状态行为 - 受信仰影响恢复效果"""
         logs = []
         self.rest_count += 1
         
+        # 基础休息恢复
+        base_health_recovery = 3
+        base_energy_recovery = 5
+        
+        # 信仰影响恢复效果
+        if self.faith:
+            if self.faith.faith_type == FaithType.SPIRITUAL:
+                # 精神信仰大幅提升恢复效果
+                base_health_recovery *= 1.5
+                base_energy_recovery *= 1.3
+                # 精神信仰也降低饥饿和口渴
+                hunger_increase = 0.2
+                thirst_increase = 0.1
+            elif self.faith.faith_type == FaithType.NATURE:
+                # 自然信仰中等提升恢复效果
+                base_health_recovery *= 1.3
+                base_energy_recovery *= 1.2
+                hunger_increase = 0.3
+                thirst_increase = 0.2
+            elif self.faith.faith_type == FaithType.COMMUNITY:
+                # 社群信仰轻微提升恢复效果
+                base_health_recovery *= 1.1
+                base_energy_recovery *= 1.1
+                hunger_increase = 0.4
+                thirst_increase = 0.3
+            else:
+                hunger_increase = 0.5
+                thirst_increase = 0.3
+        else:
+            hunger_increase = 0.5
+            thirst_increase = 0.3
+        
         # 休息恢复健康和能量
-        self.health = min(100, self.health + 3)
-        self.energy = min(100, self.energy + 5)
+        self.health = min(100, self.health + base_health_recovery)
+        self.energy = min(100, self.energy + base_energy_recovery)
         
         # 休息降低饥饿和口渴（但比正常状态慢）
-        self.hunger = min(100, self.hunger + 0.5)
-        self.thirst = min(100, self.thirst + 0.3)
+        self.hunger = min(100, self.hunger + hunger_increase)
+        self.thirst = min(100, self.thirst + thirst_increase)
+        
+        # 信仰相关的特殊效果
+        if self.faith:
+            if self.faith.faith_type == FaithType.ANCESTOR:
+                # 祖先信仰：长时间休息增加智慧（经验）
+                if self.rest_count >= 3:
+                    self.profession_exp += 2.0
+                    logs.append(f"Agent {self.id} gains wisdom from ancestors during rest.")
+            elif self.faith.faith_type == FaithType.TECHNOLOGY:
+                # 技术信仰：休息时思考创新
+                if random.random() < 0.3:  # 30%概率产生创新想法
+                    self.profession_exp += 1.0
+                    logs.append(f"Agent {self.id} has innovative insights during rest.")
         
         if self.health >= 100 and self.energy >= 80:
             self.state = AgentState.IDLE
