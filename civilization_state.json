@@ -1,0 +1,70 @@
+{
+  "year": 50,
+  "population": 81593,
+  "resources": {
+    "food": 64549,
+    "water": 80,
+    "wood": 41810,
+    "mineral": 20899
+  },
+  "cultural_value": 2380,
+  "trade_value": 3604,
+  "tech_tree": {
+    "completed_techs": [
+      "trade_networks",
+      "bronze_working",
+      "specialization",
+      "tribal_organization",
+      "internet",
+      "fire_control",
+      "factory_system",
+      "steam_power",
+      "agriculture",
+      "urbanization",
+      "basic_construction",
+      "computing",
+      "electricity",
+      "ai",
+      "language",
+      "pottery",
+      "writing",
+      "railway",
+      "biotechnology",
+      "stone_tools"
+    ],
+    "current_era": "information",
+    "tech_points": 1582327,
+    "research_rate": 4.5,
+    "population": 81593,
+    "resources": {
+      "food": 64549,
+      "water": 80,
+      "wood": 41810,
+      "mineral": 20899
+    },
+    "cultural_value": 2380,
+    "trade_value": 3604,
+    "tech_progress": {
+      "fire_control": 100.0,
+      "stone_tools": 100.0,
+      "basic_construction": 100.0,
+      "language": 100.0,
+      "agriculture": 100.0,
+      "pottery": 100.0,
+      "specialization": 100.0,
+      "tribal_organization": 100.0,
+      "bronze_working": 100.0,
+      "urbanization": 100.0,
+      "writing": 100.0,
+      "trade_networks": 100.0,
+      "steam_power": 100.0,
+      "factory_system": 100.0,
+      "railway": 100.0,
+      "electricity": 100.0,
+      "computing": 100.0,
+      "internet": 100.0,
+      "ai": 100.0,
+      "biotechnology": 100.0
+    }
+  }
+}
