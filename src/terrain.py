@@ -22,7 +22,7 @@ class Tile:
     
     # 地形基础属性矩阵
     TERRAIN_PROPERTIES = {
-        TerrainType.WATER: {
+        TerrainType.WATER.value: {
             "habitability": 0.0,
             "food_potential": 0.0,
             "water_potential": 0.0,
@@ -31,7 +31,7 @@ class Tile:
             "movement_cost": 3,
             "population_capacity": 0
         },
-        TerrainType.LOWLAND: {
+        TerrainType.LOWLAND.value: {
             "habitability": 0.8,
             "food_potential": 0.7,
             "water_potential": 0.6,
@@ -40,7 +40,7 @@ class Tile:
             "movement_cost": 1,
             "population_capacity": 100
         },
-        TerrainType.FOREST: {
+        TerrainType.FOREST.value: {
             "habitability": 0.6,
             "food_potential": 0.5,
             "water_potential": 0.5,
@@ -49,7 +49,7 @@ class Tile:
             "movement_cost": 2,
             "population_capacity": 60
         },
-        TerrainType.MOUNTAIN: {
+        TerrainType.MOUNTAIN.value: {
             "habitability": 0.3,
             "food_potential": 0.2,
             "water_potential": 0.3,
@@ -58,7 +58,7 @@ class Tile:
             "movement_cost": 4,
             "population_capacity": 30
         },
-        TerrainType.DESERT: {
+        TerrainType.DESERT.value: {
             "habitability": 0.2,
             "food_potential": 0.1,
             "water_potential": 0.2,
@@ -84,7 +84,7 @@ class Tile:
         
         # 人口系统
         self.population = 0           # 当前人口数量
-        self.max_population = self.TERRAIN_PROPERTIES[terrain_type]["population_capacity"]
+        self.max_population = self.TERRAIN_PROPERTIES[terrain_type.value]["population_capacity"]
         
         # 改进设施
         self.improvements: List[str] = []  # 改进设施列表
@@ -92,17 +92,17 @@ class Tile:
     
     def get_habitability(self) -> float:
         """获取地形可居住性评分"""
-        return self.TERRAIN_PROPERTIES[self.terrain_type]["habitability"]
+        return self.TERRAIN_PROPERTIES[self.terrain_type.value]["habitability"]
     
     def get_resource_potential(self, resource_type: str) -> float:
         """获取特定资源的潜力值"""
-        properties = self.TERRAIN_PROPERTIES[self.terrain_type]
+        properties = self.TERRAIN_PROPERTIES[self.terrain_type.value]
         potential_key = f"{resource_type}_potential"
         return properties.get(potential_key, 0.0)
     
     def get_movement_cost(self) -> int:
         """获取移动成本"""
-        return self.TERRAIN_PROPERTIES[self.terrain_type]["movement_cost"]
+        return self.TERRAIN_PROPERTIES[self.terrain_type.value]["movement_cost"]
     
     def can_improve(self) -> bool:
         """判断是否可以建设改进设施"""
@@ -214,7 +214,11 @@ class Map:
         
         for row in self.grid:
             for tile in row:
-                counts[tile.terrain_type] += 1
+                # 使用枚举对象作为键
+                for terrain_type in TerrainType:
+                    if tile.terrain_type == terrain_type:
+                        counts[terrain_type] += 1
+                        break
         
         return counts
     

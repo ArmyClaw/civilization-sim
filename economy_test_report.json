@@ -1,0 +1,11 @@
+{
+  "test_type": "economy_balance",
+  "maps_tested": 5,
+  "average_population": 0.0,
+  "average_resources": 1058.378489197527,
+  "resource_per_person": 0,
+  "balance_score": "NeedPopulation",
+  "recommendations": [
+    "需要实现人口生成逻辑"
+  ]
+}
