@@ -135,12 +135,12 @@ const BUILDING_TYPES = {
 };
 
 // Simulation parameters
-const FOOD_PER_POP      = 0.010;
-const PROD_SCALE        = 0.012;
-const GROWTH_BASE       = 0.003;
-const GROWTH_SURPLUS    = 0.004;
-const GROWTH_DEFICIT    = -0.006;
-const MIN_POP           = 5;
+const FOOD_PER_POP      = 0.006;
+const PROD_SCALE        = 0.015;
+const GROWTH_BASE       = 0.004;
+const GROWTH_SURPLUS    = 0.005;
+const GROWTH_DEFICIT    = -0.003;
+const MIN_POP           = 3;
 const TICKS_PER_YEAR    = 100;
 const CORRUPTION_THRESHOLD = 800;  // population above which corruption kicks in
 const SPLIT_THRESHOLD     = 2000; // population that may cause split
@@ -497,8 +497,8 @@ class Simulation {
     tribe.population += tribe.population * gr;
 
     // Starvation cycle
-    if (tribe.food < -20) {
-      tribe.population *= 0.85;
+    if (tribe.food < -50) {
+      tribe.population *= 0.92;
       tribe.food = 0;
       this._emitEvent({ type: 'disaster', text: `${tribe.name} 遭遇严重饥荒！`, year: this.year });
     }
@@ -533,8 +533,8 @@ class Simulation {
     tribe.militaryPower = tribe.population * tribe.getMilitaryMultiplier();
     tribe.defensePower = tribe.population * tribe.getDefenseMultiplier();
 
-    // Death check
-    if (tribe.population <= MIN_POP && tribe.food < 2) {
+    // Death check (much harder to go extinct)
+    if (tribe.population <= MIN_POP && tribe.food < -30) {
       tribe.alive = false;
       // Release territory
       for (let i = 0; i < this.territory.length; i++) {
@@ -740,7 +740,7 @@ class Simulation {
         }
 
         // Enhanced war system
-        const warChance = 0.005 + (a.population > 300 ? 0.002 : 0) + (b.population > 300 ? 0.002 : 0);
+        const warChance = 0.002 + (a.population > 300 ? 0.001 : 0) + (b.population > 300 ? 0.001 : 0);
         if (Math.random() < warChance) {
           this._war(a, b);
         }
@@ -820,7 +820,7 @@ class Simulation {
       }
     } else {
       // Draw - minor losses
-      a.population *= 0.92; b.population *= 0.92;
+      a.population *= 0.97; b.population *= 0.97;
       this._emitEvent({ type: 'war', text: `${a.name} 与 ${b.name} 交战，两败俱伤`, year: this.year });
     }
   }
