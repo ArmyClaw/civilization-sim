@@ -120,7 +120,7 @@ a:hover{color:var(--ochre)}
   max-width:1200px;margin:12px auto 0;
   padding:0 20px 40px;
   display:grid;
-  grid-template-columns:1fr 320px;
+  grid-template-columns:1fr 340px;
   gap:14px;
   align-items:start;
 }
@@ -166,12 +166,12 @@ a:hover{color:var(--ochre)}
 @keyframes ink-pulse{0%,100%{opacity:0.8}50%{opacity:0.2}}
 
 /* ══════════════════════ RIGHT PANEL ══════════════════════ */
-.panel{display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel{display:flex;flex-direction:column;gap:10px;min-width:0}
 
 .panel-card{
   border:1px solid var(--ink-faded);
   background:var(--card-bg);
-  padding:14px 16px;
+  padding:12px 14px;
   position:relative;
 }
 .panel-card::before,.panel-card::after{content:'';position:absolute;width:8px;height:8px}
@@ -179,42 +179,83 @@ a:hover{color:var(--ochre)}
 .panel-card::after{bottom:-1px;right:-1px;border-bottom:2px solid var(--ochre);border-right:2px solid var(--ochre)}
 
 .panel-title{
-  font-size:0.6em;letter-spacing:0.25em;text-transform:uppercase;
-  color:var(--ink-faded);margin-bottom:10px;
-  padding-bottom:6px;
+  font-size:0.58em;letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--ink-faded);margin-bottom:8px;
+  padding-bottom:5px;
   border-bottom:1px dotted var(--ink-faded);
 }
 
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.stat-item{text-align:center;padding:6px 4px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat-item{text-align:center;padding:4px 2px}
 .stat-val{
   font-family:'Cormorant Garamond',serif;
-  font-size:1.4em;font-weight:600;color:var(--teal);
+  font-size:1.3em;font-weight:600;color:var(--teal);
   line-height:1;
 }
 .stat-item:nth-child(2) .stat-val{color:var(--ochre)}
 .stat-item:nth-child(3) .stat-val{color:var(--ink-light)}
-.stat-lbl{font-size:0.6em;color:var(--ink-faded);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px}
+.stat-lbl{font-size:0.55em;color:var(--ink-faded);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px}
+
+/* Era distribution bar */
+.era-bar-container{margin-top:6px}
+.era-bar-row{display:flex;align-items:center;gap:4px;margin-bottom:3px;font-size:0.7em}
+.era-bar-label{width:60px;color:var(--ink-faded);text-align:right;flex-shrink:0;font-size:0.85em}
+.era-bar-track{flex:1;height:6px;background:rgba(0,0,0,0.05);border-radius:3px;overflow:hidden}
+.era-bar-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
+.era-bar-count{width:20px;color:var(--ink-light);font-size:0.8em}
+
+/* Territory pie (CSS-only) */
+.territory-chart{margin-top:6px;display:flex;gap:8px;align-items:center}
+.territory-bar{flex:1}
+.territory-row{display:flex;align-items:center;gap:4px;margin-bottom:2px;font-size:0.7em}
+.territory-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.territory-name{width:40px;color:var(--ink-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.territory-track{flex:1;height:5px;background:rgba(0,0,0,0.05);border-radius:2px;overflow:hidden}
+.territory-fill{height:100%;border-radius:2px;transition:width 0.5s ease}
+.territory-pct{width:30px;color:var(--ink-faded);font-size:0.8em;text-align:right}
 
 /* Selected tribe */
-.tribe-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.tribe-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .tribe-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(0,0,0,0.15);flex-shrink:0}
-.tribe-name{font-family:'Cormorant Garamond',serif;font-size:1.2em;font-weight:600;color:var(--ink)}
-.tribe-detail{font-size:0.78em;color:var(--ink-light);line-height:1.8}
+.tribe-name{font-family:'Cormorant Garamond',serif;font-size:1.15em;font-weight:600;color:var(--ink)}
+.tribe-level{font-size:0.7em;color:var(--ink-faded);margin-left:4px}
+.tribe-detail{font-size:0.75em;color:var(--ink-light);line-height:1.7}
 .tribe-detail span{color:var(--ink);font-weight:500}
 
-.res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px}
-.res-cell{text-align:center;padding:4px 2px;border:1px dotted var(--ink-faded)}
-.res-cell-val{font-family:'Cormorant Garamond',serif;font-size:1em;font-weight:600;color:var(--teal)}
-.res-cell-lbl{font-size:0.55em;color:var(--ink-faded);letter-spacing:0.1em}
+.res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:5px}
+.res-cell{text-align:center;padding:3px 1px;border:1px dotted var(--ink-faded)}
+.res-cell-val{font-family:'Cormorant Garamond',serif;font-size:0.95em;font-weight:600;color:var(--teal)}
+.res-cell-lbl{font-size:0.5em;color:var(--ink-faded);letter-spacing:0.1em}
+
+/* Buildings display */
+.buildings-grid{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.building-badge{
+  display:flex;align-items:center;gap:3px;
+  padding:2px 6px;
+  border:1px dotted var(--ink-faded);
+  font-size:0.7em;
+  color:var(--ink-light);
+  background:rgba(244,239,228,0.5);
+}
+.building-count{color:var(--teal);font-weight:600}
+
+/* Power bars */
+.power-section{margin-top:5px}
+.power-row{display:flex;align-items:center;gap:6px;margin-bottom:2px;font-size:0.7em}
+.power-label{width:40px;color:var(--ink-faded)}
+.power-bar{flex:1;height:4px;background:rgba(0,0,0,0.06);border-radius:2px;overflow:hidden}
+.power-fill{height:100%;border-radius:2px;transition:width 0.3s}
+.power-fill.mil{background:#c0392b}
+.power-fill.def{background:#2980b9}
+.power-val{width:40px;color:var(--ink-light);font-size:0.8em;text-align:right}
 
 .no-selection{color:var(--ink-faded);font-size:0.85em;font-style:italic}
 
 /* Tech tree */
-.tech-list{display:flex;flex-direction:column;gap:3px;max-height:200px;overflow-y:auto}
+.tech-list{display:flex;flex-direction:column;gap:2px;max-height:180px;overflow-y:auto}
 .tech-item{
-  display:flex;align-items:center;gap:8px;
-  padding:5px 8px;font-size:0.78em;
+  display:flex;align-items:center;gap:6px;
+  padding:4px 7px;font-size:0.75em;
   border-left:3px solid var(--ink-faded);
   background:rgba(244,239,228,0.5);
   transition:background 0.2s;
@@ -222,18 +263,18 @@ a:hover{color:var(--ochre)}
 .tech-item.done{border-left-color:var(--teal);color:var(--teal)}
 .tech-item.researching{border-left-color:var(--ochre);background:var(--ochre-faded)}
 .tech-item.locked{color:var(--ink-faded);opacity:0.5}
-.tech-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--ink-faded);flex-shrink:0}
+.tech-dot{width:7px;height:7px;border-radius:50%;border:1.5px solid var(--ink-faded);flex-shrink:0}
 .tech-item.done .tech-dot{background:var(--teal);border-color:var(--teal)}
 .tech-item.researching .tech-dot{background:var(--ochre);border-color:var(--ochre)}
-.tech-bar{flex:1;height:2px;background:rgba(0,0,0,0.06);border-radius:1px;overflow:hidden;min-width:30px}
+.tech-bar{flex:1;height:2px;background:rgba(0,0,0,0.06);border-radius:1px;overflow:hidden;min-width:20px}
 .tech-bar-fill{height:100%;background:var(--ochre);border-radius:1px;transition:width 0.3s}
 
 /* Event log */
-.event-log{max-height:220px;overflow-y:auto;font-size:0.75em;line-height:1.8;color:var(--ink-light)}
-.event-item{padding:3px 0;border-bottom:1px dotted rgba(160,149,133,0.15)}
+.event-log{max-height:200px;overflow-y:auto;font-size:0.72em;line-height:1.7;color:var(--ink-light)}
+.event-item{padding:2px 0;border-bottom:1px dotted rgba(160,149,133,0.15)}
 .event-item:last-child{border-bottom:none}
-.event-year{color:var(--ink-faded);font-size:0.85em;margin-right:6px}
-.event-type{font-size:0.7em;letter-spacing:0.1em;text-transform:uppercase;margin-right:4px}
+.event-year{color:var(--ink-faded);font-size:0.85em;margin-right:5px}
+.event-type{font-size:0.65em;letter-spacing:0.1em;text-transform:uppercase;margin-right:4px}
 .event-type.tech{color:var(--teal)}
 .event-type.war{color:#c0392b}
 .event-type.disaster{color:#e67e22}
@@ -244,17 +285,18 @@ a:hover{color:var(--ochre)}
 .event-type.victory{color:#f1c40f;font-weight:700}
 
 /* Tribe list */
-.tribe-list{max-height:120px;overflow-y:auto}
+.tribe-list{max-height:140px;overflow-y:auto}
 .tribe-list-item{
-  display:flex;align-items:center;gap:6px;
-  padding:4px 6px;cursor:pointer;
-  transition:background 0.15s;font-size:0.75em;
+  display:flex;align-items:center;gap:5px;
+  padding:3px 5px;cursor:pointer;
+  transition:background 0.15s;font-size:0.72em;
 }
 .tribe-list-item:hover{background:var(--teal-faded)}
 .tribe-list-item.active{background:var(--teal-faded)}
-.tribe-list-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tribe-list-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .tribe-list-name{flex:1;color:var(--ink-light)}
 .tribe-list-pop{color:var(--ink-faded);font-size:0.85em}
+.tribe-list-territory{color:var(--ink-faded);font-size:0.7em;width:40px;text-align:right}
 
 /* ══════════════════════ FOOTER ══════════════════════ */
 .footer{
@@ -285,7 +327,6 @@ a:hover{color:var(--ochre)}
   .panel{gap:8px}
 }
 
-/* Scrollbar styling */
 .event-log::-webkit-scrollbar,
 .tech-list::-webkit-scrollbar,
 .tribe-list::-webkit-scrollbar{width:4px}
@@ -328,13 +369,13 @@ a:hover{color:var(--ochre)}
     <button class="ctrl-btn" data-speed="2" onclick="setSpeed(2)">2×</button>
     <button class="ctrl-btn" data-speed="5" onclick="setSpeed(5)">5×</button>
     <button class="ctrl-btn" data-speed="10" onclick="setSpeed(10)">10×</button>
+    <button class="ctrl-btn" data-speed="20" onclick="setSpeed(20)">20×</button>
     <div class="ctrl-divider"></div>
     <button class="ctrl-btn" onclick="newWorld()">⟳ 新世界</button>
   </div>
 </section>
 
 <div class="sim-layout">
-  <!-- Map -->
   <div>
     <div class="map-bar">
       <div class="map-bar-dot"></div>
@@ -346,7 +387,6 @@ a:hover{color:var(--ochre)}
     </div>
   </div>
 
-  <!-- Panel -->
   <div class="panel">
     <!-- World Stats -->
     <div class="panel-card">
@@ -356,6 +396,20 @@ a:hover{color:var(--ochre)}
         <div class="stat-item"><div class="stat-val" id="statEra">石器时代</div><div class="stat-lbl">Era</div></div>
         <div class="stat-item"><div class="stat-val" id="statPop">0</div><div class="stat-lbl">Population</div></div>
         <div class="stat-item"><div class="stat-val" id="statTribes">0</div><div class="stat-lbl">Tribes</div></div>
+      </div>
+    </div>
+
+    <!-- Era Distribution -->
+    <div class="panel-card">
+      <div class="panel-title">时代分布</div>
+      <div class="era-bar-container" id="eraDistribution"></div>
+    </div>
+
+    <!-- Territory Chart -->
+    <div class="panel-card">
+      <div class="panel-title">领土占比</div>
+      <div class="territory-chart">
+        <div class="territory-bar" id="territoryChart"></div>
       </div>
     </div>
 
@@ -395,16 +449,14 @@ a:hover{color:var(--ochre)}
 (function() {
 'use strict';
 
-// ─── State ───
 let sim = new CivSim.Simulation();
 let renderer;
 let running = false;
-let speed = 1; // ticks per second
+let speed = 1;
 let accum = 0;
 let lastTime = 0;
-let animId = null;
+let lastTerritoryRebuild = 0; // tickCount of last territory overlay rebuild
 
-// ─── Init ───
 function init() {
   const canvas = document.getElementById('mapCanvas');
   renderer = new CivRenderer.Renderer(canvas);
@@ -418,6 +470,14 @@ function init() {
   });
   sim.onStateChange((state) => {
     renderer.updateState(state);
+    // Rebuild territory overlay periodically (every 20 ticks)
+    if (sim.tickCount - lastTerritoryRebuild >= 20 || lastTerritoryRebuild === 0) {
+      lastTerritoryRebuild = sim.tickCount;
+      renderer.buildTerritoryOverlay(
+        sim.territory, sim.terrain,
+        state.tribes, CivSim.WORLD_SIZE, state.eraIndex
+      );
+    }
     updateUI(sim);
   });
 
@@ -431,44 +491,46 @@ function newWorld() {
   document.getElementById('btnPause').style.display = 'none';
   document.getElementById('btnPlay').textContent = '▶ 开始';
   accum = 0;
+  lastTerritoryRebuild = 0;
 
   const seed = (Math.random() * 999999) | 0;
   sim.newWorld(seed);
 
-  // Build terrain texture
   renderer.buildTerrain(sim.terrain, CivSim.WORLD_SIZE, CivSim.TERRAIN_COLORS);
   renderer.centerCamera(CivSim.WORLD_SIZE);
 
-  // Clear and rebuild event log
+  // Initial territory overlay
+  const aliveTribes = sim.tribes.filter(t => t.alive).map(t => ({
+    id: t.id, name: t.name, alive: true, color: t.color,
+  }));
+  renderer.buildTerritoryOverlay(sim.territory, sim.terrain, aliveTribes, CivSim.WORLD_SIZE, 0);
+  lastTerritoryRebuild = 1;
+
   document.getElementById('eventLog').innerHTML = '';
   sim.events.forEach(addEventToLog);
-
   updateUI(sim);
 }
 
-// ─── Main Loop ───
 function mainLoop(time) {
   const dt = lastTime ? (time - lastTime) / 1000 : 0;
   lastTime = time;
 
   if (running) {
     accum += dt * speed;
-    const maxTicks = Math.min(accum, 10); // cap to prevent spiral
+    const maxTicks = Math.min(accum, 20);
     accum -= maxTicks;
     for (let i = 0; i < maxTicks; i++) {
       sim.tick();
     }
   }
 
-  // Always render
   renderer.render(CivSim.WORLD_SIZE);
 
-  // Update coords
   const cam = renderer.camera;
   document.getElementById('mapCoords').textContent =
     `x:${cam.x.toFixed(0)} y:${cam.y.toFixed(0)} zoom:${cam.zoom.toFixed(1)}×`;
 
-  animId = requestAnimationFrame(mainLoop);
+  requestAnimationFrame(mainLoop);
 }
 
 // ─── UI Update ───
@@ -478,9 +540,54 @@ function updateUI(sim) {
   document.getElementById('statPop').textContent = formatNum(sim.getTotalPop());
   document.getElementById('statTribes').textContent = sim.getAliveCount();
 
+  updateEraDistribution(sim);
+  updateTerritoryChart(sim);
   updateTribeList(sim);
   updateSelectedTribe(sim);
   updateTechList(sim);
+}
+
+function updateEraDistribution(sim) {
+  const el = document.getElementById('eraDistribution');
+  const dist = sim.getEraDistribution();
+  const total = Object.values(dist).reduce((a, b) => a + b, 0);
+  if (total === 0) { el.innerHTML = ''; return; }
+
+  const eraColors = ['#8b7355','#6b8e4e','#cd7f32','#4a7345','#5c5c8a','#d4a537','#6b6b6b','#3498db','#9b59b6'];
+
+  let html = '';
+  const entries = Object.entries(dist).sort((a, b) => b[1] - a[1]);
+  for (let i = 0; i < entries.length; i++) {
+    const [name, count] = entries[i];
+    const pct = (count / total * 100).toFixed(0);
+    const color = eraColors[i % eraColors.length];
+    html += `<div class="era-bar-row">
+      <span class="era-bar-label">${name.slice(0,4)}</span>
+      <div class="era-bar-track"><div class="era-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <span class="era-bar-count">${count}</span>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
+function updateTerritoryChart(sim) {
+  const el = document.getElementById('territoryChart');
+  const alive = sim.tribes.filter(t => t.alive && t.territoryPercent > 0.005)
+    .sort((a, b) => b.territoryPercent - a.territoryPercent).slice(0, 6);
+
+  if (alive.length === 0) { el.innerHTML = '<div style="color:var(--ink-faded);font-size:0.75em;font-style:italic">尚无领土数据</div>'; return; }
+
+  let html = '';
+  for (const t of alive) {
+    const pct = (t.territoryPercent * 100).toFixed(1);
+    html += `<div class="territory-row">
+      <div class="territory-dot" style="background:${t.color}"></div>
+      <span class="territory-name">${t.name}</span>
+      <div class="territory-track"><div class="territory-fill" style="width:${Math.min(100, t.territoryPercent * 500)}%;background:${t.color}"></div></div>
+      <span class="territory-pct">${pct}%</span>
+    </div>`;
+  }
+  el.innerHTML = html;
 }
 
 function updateTribeList(sim) {
@@ -492,6 +599,7 @@ function updateTribeList(sim) {
       <div class="tribe-list-dot" style="background:${t.color}"></div>
       <span class="tribe-list-name">${t.name}</span>
       <span class="tribe-list-pop">${formatNum(t.population)}</span>
+      <span class="tribe-list-territory">${t.territorySize || 0}格</span>
     </div>`;
   }).join('');
 }
@@ -509,15 +617,39 @@ function updateSelectedTribe(sim) {
     return;
   }
 
-  const res = `
+  const levelNames = ['部落','村庄','城镇','城市','大都市'];
+  const levelIcons = ['🏠','🏘️','🏙️','🏛️','🌟'];
+
+  const b = tribe.buildings || {};
+  const totalB = Object.values(b).reduce((a, c) => a + c, 0);
+  const buildingTypes = CivSim.BUILDING_TYPES;
+  const buildingKeys = ['farm','mine','barracks','academy','market','wall'];
+
+  let buildingHtml = '';
+  if (totalB > 0) {
+    buildingHtml = '<div class="buildings-grid">';
+    for (const key of buildingKeys) {
+      if (b[key] > 0) {
+        const bt = buildingTypes[key];
+        buildingHtml += `<div class="building-badge">${bt.icon} <span class="building-count">${b[key]}</span></div>`;
+      }
+    }
+    buildingHtml += '</div>';
+  }
+
+  // Find max military for scaling
+  const maxMil = Math.max(1, ...sim.tribes.filter(t => t.alive).map(t => t.militaryPower || 0));
+
+  const html = `
     <div class="tribe-header">
       <div class="tribe-dot" style="background:${tribe.color}"></div>
       <div class="tribe-name">${tribe.name}</div>
+      <span class="tribe-level">${levelIcons[tribe.settlementLevel] || ''} ${levelNames[tribe.settlementLevel] || '部落'}</span>
     </div>
     <div class="tribe-detail">
-      人口: <span>${formatNum(tribe.population)}</span><br>
-      位置: <span>(${tribe.x}, ${tribe.y})</span><br>
-      科技: <span>${tribe.techs.size} 项</span>
+      人口: <span>${formatNum(tribe.population)}</span> · 领土: <span>${tribe.territorySize || 0} 格</span> (<span>${((tribe.territoryPercent || 0) * 100).toFixed(1)}%</span>)<br>
+      科技: <span>${tribe.techs.length} 项</span>
+      ${tribe.corruption > 0.05 ? ` · 腐败: <span style="color:#e74c3c">${(tribe.corruption * 100).toFixed(0)}%</span>` : ''}
       ${tribe.researching ? '<br>研究: <span>「' + getTechName(tribe.researching) + '」 ' + (tribe.researchProgress / getTechTicks(tribe.researching) * 100).toFixed(0) + '%</span>' : ''}
     </div>
     <div class="res-grid">
@@ -525,15 +657,26 @@ function updateSelectedTribe(sim) {
       <div class="res-cell"><div class="res-cell-val">${formatNum(tribe.wood)}</div><div class="res-cell-lbl">木材</div></div>
       <div class="res-cell"><div class="res-cell-val">${formatNum(tribe.stone)}</div><div class="res-cell-lbl">石材</div></div>
       <div class="res-cell"><div class="res-cell-val">${formatNum(tribe.iron)}</div><div class="res-cell-lbl">铁矿</div></div>
+    </div>
+    ${buildingHtml}
+    <div class="power-section">
+      <div class="power-row">
+        <span class="power-label">军事</span>
+        <div class="power-bar"><div class="power-fill mil" style="width:${Math.min(100, (tribe.militaryPower || 0) / maxMil * 100)}%"></div></div>
+        <span class="power-val">${formatNum(tribe.militaryPower || 0)}</span>
+      </div>
+      <div class="power-row">
+        <span class="power-label">防御</span>
+        <div class="power-bar"><div class="power-fill def" style="width:${Math.min(100, (tribe.defensePower || 0) / maxMil * 100)}%"></div></div>
+        <span class="power-val">${formatNum(tribe.defensePower || 0)}</span>
+      </div>
     </div>`;
-  el.innerHTML = res;
+  el.innerHTML = html;
 }
 
 function updateTechList(sim) {
   const el = document.getElementById('techList');
   const tribe = sim.getSelected();
-
-  // Show world's max tech if no selection
   const techs = tribe ? tribe.techs : new Set();
   const researching = tribe ? tribe.researching : null;
   const progress = tribe ? tribe.researchProgress : 0;
@@ -561,7 +704,6 @@ function addEventToLog(evt) {
   div.className = 'event-item';
   div.innerHTML = `<span class="event-year">${yearStr}</span><span class="event-type ${typeClass}">${typeClass}</span>${evt.text}`;
   log.prepend(div);
-  // Limit visible events
   while (log.children.length > 50) log.removeChild(log.lastChild);
 }
 
@@ -590,7 +732,6 @@ window.newWorld = function() {
   newWorld();
 };
 
-// ─── Helpers ───
 function formatNum(n) {
   if (n == null) return '—';
   n = Math.round(n);
@@ -610,7 +751,6 @@ function getTechTicks(id) {
   return t ? t.ticks : 100;
 }
 
-// ─── Boot ───
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
