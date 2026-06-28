@@ -34,8 +34,11 @@
 - gallery data.json格式：`{photos: [{file, title, description, date, location, quote}]}`
 
 ### 实验室
-- /study/ 页面，4个项目：Civ Sim、Evo Music、Video Prompt、Quantum Crypto
-- 实验室数据库：~/projects/open-lab/db.py
+- /study/ 页面，7个项目：Civ Sim、Evo Music、Video Prompt、Quantum Crypto、Palette Shaker、Chaos Butterfly、Digital Garden
+- 统一仓库：git@github.com:ArmyClaw/army-open-laboratory.git（所有项目都在这个仓库，新增项目不再申请独立仓库）
+- 本地路径：~/projects/army-open-laboratory/
+- 旧独立仓库：civilization-sim、evo-music、post-quantum-crypto、video-prompt-gen、chaos-butterfly（仍保留，不再主力维护）
+- 网站部署路径：/var/www/army-yorozuya.art/study/ 和 /var/www/army-yorozuya.art/garden/
 
 ### 邮件
 - Agently Mail CLI 已配置，地址 army6062@agent.qq.com
